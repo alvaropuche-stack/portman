@@ -46,113 +46,43 @@ let tlMain = gsap.timeline({
 });
 
 
-
-// Hiding the second logo initially
-gsap.set(".hero-logo-2", { opacity: 0 });
-
-// Timeline para el cambio de logo entre la primera y la segunda sección
-let logoTimeline = gsap.timeline({
-  scrollTrigger: {
-    trigger: ".portman-section-2",
-    containerAnimation: tlMain,
-    markers: true,
-    start: "center 80%",
-    end: "center center",
-    scrub: true,
-    onEnter: () => {
-      gsap.to(".hero-logo", { opacity: 0, duration: 0.1 });
-      gsap.to(".hero-logo-2", { opacity: 1, duration: 0.3, delay: 0.1 });
-    },
-    onLeaveBack: () => {
-      gsap.to(".hero-logo", { opacity: 1, duration: 0.3 });
-      gsap.to(".hero-logo-2", { opacity: 0, duration: 0.1 });
-    }
-  }
-});
-
-// Código adicional para manejar las secciones siguientes (ejemplo con la sección 3)
-gsap.timeline({
-  scrollTrigger: {
-      trigger: ".portman-section-3",
-      containerAnimation: tlMain,
-      markers: true,
-      start: "center 80%",
-      onEnter: () => {
-          gsap.to(".hero-logo", { opacity: 0, duration: 0.1 });
-          gsap.to(".hero-logo-2", { opacity: 1, duration: 0.3 });
-      },
-      onLeaveBack: () => {
-          gsap.to(".hero-logo-2", { opacity: 1, duration: 0.3 });
-          gsap.to(".hero-logo", { opacity: 0, duration: 0.1 });
-      }
-  }
-});
-
-
-
-// ScrollTrigger animation for the s3-image
+// Asegúrate de que los elementos tengan el estado inicial correcto
+gsap.set(".s3-image", { opacity: 0, scale: 0.8 }); // Asigna un estado inicial
+gsap.set(".s3-text-wrap", { opacity: 0 }); // Asegúrate de que el texto esté oculto inicialmente
+// Animación para la imagen s3 al entrar en la sección
 ScrollTrigger.create({
   trigger: ".portman-section-3",
-  start: "top 55%", // Start when the top of the trigger hits the 55% mark of the viewport
-  end: "85%", // End when the bottom of the trigger hits the 85% mark of the viewport
-  markers: false,
-  containerAnimation: tlMain,
-  scrub: true, // Smooth scrubbing with the scroll
-  onUpdate: (self) => {
-    // Calculate the scale and opacity based on the scroll progress
-    // Assuming the animation starts at 55% and ends at 85%, calculate progress relative to that range
-    let relativeProgress = (self.progress - 0.55) / (0.85 - 0.55);
-    relativeProgress = Math.max(0, relativeProgress); // Clamp to minimum 0
-    const scale = 1 - relativeProgress * 0.2; // Scale down to 0.8
-    const opacity = 1 - relativeProgress; // Fade out to 0
-
-    // Apply the scale and opacity transformations
-    gsap.to(".s3-image", {
-      scale: scale,
-      opacity: opacity,
-      ease: "none" // Use linear easing for smooth scrubbing
-    });
-  }
-});
-
-
-// ScrollTrigger animation for the s3-text-wrap
-ScrollTrigger.create({
-  trigger: ".portman-section-3",
-  start: "top 45%", // This might need adjustment to start after the image comes into view
-  end: "60%", // Adjust as needed
-  markers: false,
+  start: "center 80%", // Ajustar a un valor que capture el momento justo al entrar en la sección
+  end: "center center",
+  markers: true, // Establecer en true para depuración y ajustar la animación
   containerAnimation: tlMain,
   onEnter: () => {
-    // Fade in the s3-text-wrap after the image has moved into place
-    gsap.to(".s3-text-wrap", {
-      opacity: 1, // Fade in to full visibility
+    gsap.to(".s3-image", {
+      opacity: 1,
+      scale: 1,
       duration: 0.5,
-      ease: "power4.in",
-      delay: 0.6 // Delay this to start after the image animation completes
+      ease: "power4.inOut"
     });
   },
-  onLeave: () => {
-    // Fade out the s3-text-wrap
-    gsap.to(".s3-text-wrap", { opacity: 0, duration: 0.5, ease: "power4.out" });
-  },
-  onEnterBack: () => {
-    // Fade in the s3-text-wrap again when scrolling back into the section
-    gsap.to(".s3-text-wrap", {
-      opacity: 1, // Fade in to full visibility
-      duration: 0.5,
-      ease: "power4.in"
-    });
-  },
-  onLeaveBack: (self) => {
-    // Fade out the s3-text-wrap if scrolling back before the section
-    if (self.progress === 0) {
-      gsap.to(".s3-text-wrap", { opacity: 0, duration: 0.5, ease: "power4.out" });
-    }
-  }
+  // ... (resto de las animaciones para la sección 3) ...
 });
 
-
+// Animación para el texto s3 al entrar en la sección
+ScrollTrigger.create({
+  trigger: ".portman-section-3",
+  start: "center 80%", // Ajustar de la misma manera que la imagen para que la animación sea coherente
+  end: "buttom center",
+  markers: true, // Establecer en true para depuración y ajustar la animación
+  containerAnimation: tlMain,
+  onEnter: () => {
+    gsap.to(".s3-text-wrap", {
+      opacity: 1,
+      duration: 0.5,
+      ease: "power4.inOut",
+      delay: 0.3 // Ajustar el retraso si es necesario
+    });
+  },
+});
 
 // Animaciones de parallax para los elementos de la sección 'portman-section-photos-4'
 const parallaxElements = [
