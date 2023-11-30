@@ -1,3 +1,24 @@
+  // PRELOADER
+  window.addEventListener("load", () => {
+    // Transición del fondo de negro a blanco
+    gsap.to("#page-overlay", {
+      backgroundColor: "white", // Fundido a blanco
+      duration: 1,
+      ease: "steps.inOut",
+      onComplete: () => {
+        // Después de completar la animación, ocultamos el preloader
+        gsap.to("#page-overlay", {
+          opacity: 0,
+          duration: 0.5,
+          onComplete: () => {
+            // Eliminar el preloader del DOM o establecer 'display: none'
+            document.getElementById("page-overlay").style.display = "none";
+          }
+        });
+      }
+    });
+  });
+
 // Inicialización de la posición del logo
 gsap.set(".hero-logo", { x: 0, y: 0, opacity: 100 });
 
@@ -24,23 +45,28 @@ let tlMain = gsap.timeline({
     ease: "none"
 });
 
-// Ocultado el segundo logo
+
+
+// Hiding the second logo initially
 gsap.set(".hero-logo-2", { opacity: 0 });
 
-// Código existente para el cambio entre la primera y la segunda sección
-gsap.timeline({
+// Timeline para el cambio de logo entre la primera y la segunda sección
+let logoTimeline = gsap.timeline({
   scrollTrigger: {
-      trigger: ".portman-section-2",
-      containerAnimation: tlMain,
-      start: "center center",
-      onEnter: () => {
-          gsap.to(".hero-logo", { opacity: 0, duration: 0.1 });
-          gsap.to(".hero-logo-2", { opacity: 1, duration: 0.3, delay: 0.1 });
-      },
-      onLeaveBack: () => {
-          gsap.to(".hero-logo", { opacity: 1, duration: 0.3 });
-          gsap.to(".hero-logo-2", { opacity: 0, duration: 0.1 });
-      }
+    trigger: ".portman-section-2",
+    containerAnimation: tlMain,
+    markers: true,
+    start: "center 80%",
+    end: "center center",
+    scrub: true,
+    onEnter: () => {
+      gsap.to(".hero-logo", { opacity: 0, duration: 0.1 });
+      gsap.to(".hero-logo-2", { opacity: 1, duration: 0.3, delay: 0.1 });
+    },
+    onLeaveBack: () => {
+      gsap.to(".hero-logo", { opacity: 1, duration: 0.3 });
+      gsap.to(".hero-logo-2", { opacity: 0, duration: 0.1 });
+    }
   }
 });
 
@@ -49,7 +75,8 @@ gsap.timeline({
   scrollTrigger: {
       trigger: ".portman-section-3",
       containerAnimation: tlMain,
-      start: "center center",
+      markers: true,
+      start: "center 80%",
       onEnter: () => {
           gsap.to(".hero-logo", { opacity: 0, duration: 0.1 });
           gsap.to(".hero-logo-2", { opacity: 1, duration: 0.3 });
@@ -62,91 +89,39 @@ gsap.timeline({
 });
 
 
-// Animación del lightbox al llegar a la segunda sección
-gsap.timeline({
-    scrollTrigger: {
-        trigger: ".portman-section-2",
-        containerAnimation: tlMain,
-        start: "top 65%", // Ajusta este valor según tus necesidades
-        end: "bottom center", // Ajusta este valor según tus necesidades
-        markers: false,
-        scrub: true
-    }
-})
-.from(".lightbox-1-wrap", { opacity: 0, scale: 0.95, delay: 0.2 }) // Añade un retraso para que comience después de la animación del logo
-.to(".lightbox-1-wrap", { opacity: 1, scale: 1, delay: 0.2 }); // Añade el mismo retraso para sincronizarlo
 
-// ScrollTrigger for fading out the s3-image when it contacts portman-section-photos-4
+// ScrollTrigger animation for the s3-image
 ScrollTrigger.create({
   trigger: ".portman-section-3",
-  start: "top center",
-  // End the fade out when the bottom of portman-section-3 hits the top of portman-section-photos-4
-  end: () => {
-    const photosSectionTop = document.querySelector(".portman-section-photos-4").offsetTop;
-    return `top+=${photosSectionTop} top`;
-  },
-  markers: true,
+  start: "top 55%", // Start when the top of the trigger hits the 55% mark of the viewport
+  end: "85%", // End when the bottom of the trigger hits the 85% mark of the viewport
+  markers: false,
   containerAnimation: tlMain,
-  onEnter: () => {
-    // Fade in the s3-image
+  scrub: true, // Smooth scrubbing with the scroll
+  onUpdate: (self) => {
+    // Calculate the scale and opacity based on the scroll progress
+    // Assuming the animation starts at 55% and ends at 85%, calculate progress relative to that range
+    let relativeProgress = (self.progress - 0.55) / (0.85 - 0.55);
+    relativeProgress = Math.max(0, relativeProgress); // Clamp to minimum 0
+    const scale = 1 - relativeProgress * 0.2; // Scale down to 0.8
+    const opacity = 1 - relativeProgress; // Fade out to 0
+
+    // Apply the scale and opacity transformations
     gsap.to(".s3-image", {
-      opacity: 1, // Fade in the image
-      duration: 0.5,
-      ease: "power4.in"
-    });
-  },
-  onLeave: () => {
-    // Fade out the s3-image
-    gsap.to(".s3-image", {
-      opacity: 0, // Fade out the image
-      duration: 0.5,
-      ease: "power4.out"
+      scale: scale,
+      opacity: opacity,
+      ease: "none" // Use linear easing for smooth scrubbing
     });
   }
 });
 
-// ScrollTrigger for fading in the s3-image when scrolling back into section-3
-ScrollTrigger.create({
-  trigger: ".portman-section-3",
-  start: "top bottom",
-  // Begin to fade in when the top of portman-section-photos-4 leaves the viewport as we scroll back
-  end: () => {
-    const photosSectionBottom = document.querySelector(".portman-section-photos-4").offsetTop + 
-                               document.querySelector(".portman-section-photos-4").offsetHeight;
-    return `top+=${photosSectionBottom} bottom`;
-  },
-  markers: true,
-  containerAnimation: tlMain,
-  onEnterBack: () => {
-    // Fade in the s3-image
-    gsap.to(".s3-image", {
-      opacity: 1, // Fade in the image
-      duration: 0.5,
-      ease: "power4.in"
-    });
-  },
-  onLeaveBack: () => {
-    // Fade out the s3-image
-    if (self.progress === 0) {
-      gsap.to(".s3-image", {
-        opacity: 0, // Fade out the image
-        duration: 0.5,
-        ease: "power4.out"
-      });
-    }
-  }
-});
 
-
-// Set the initial state of the s3-text-wrap to be invisible
-gsap.set(".s3-text-wrap", { opacity: 0 });
-
-// Create a ScrollTrigger animation for the s3-text-wrap
+// ScrollTrigger animation for the s3-text-wrap
 ScrollTrigger.create({
   trigger: ".portman-section-3",
   start: "top 45%", // This might need adjustment to start after the image comes into view
-  end: "center center", // Adjust as needed
-  markers: true,
+  end: "60%", // Adjust as needed
+  markers: false,
   containerAnimation: tlMain,
   onEnter: () => {
     // Fade in the s3-text-wrap after the image has moved into place
@@ -154,16 +129,29 @@ ScrollTrigger.create({
       opacity: 1, // Fade in to full visibility
       duration: 0.5,
       ease: "power4.in",
-      delay: 0.3 // Delay this to start after the image animation completes
+      delay: 0.6 // Delay this to start after the image animation completes
+    });
+  },
+  onLeave: () => {
+    // Fade out the s3-text-wrap
+    gsap.to(".s3-text-wrap", { opacity: 0, duration: 0.5, ease: "power4.out" });
+  },
+  onEnterBack: () => {
+    // Fade in the s3-text-wrap again when scrolling back into the section
+    gsap.to(".s3-text-wrap", {
+      opacity: 1, // Fade in to full visibility
+      duration: 0.5,
+      ease: "power4.in"
     });
   },
   onLeaveBack: (self) => {
-    // If scrolling back, fade the s3-text-wrap out
+    // Fade out the s3-text-wrap if scrolling back before the section
     if (self.progress === 0) {
       gsap.to(".s3-text-wrap", { opacity: 0, duration: 0.5, ease: "power4.out" });
     }
-  },
+  }
 });
+
 
 
 // Animaciones de parallax para los elementos de la sección 'portman-section-photos-4'
@@ -205,22 +193,22 @@ gsap.set(".s5-image", { y: "100%" });
 // Create the ScrollTrigger animation
 ScrollTrigger.create({
   trigger: ".portman-section-5",
-  start: "top 15%", // Adjust as needed
+  start: "top 25%", // Adjust as needed
   end: "center center", // Adjust as needed
-  markers: true,
+  markers: false,
   containerAnimation: tlMain,
   onEnter: () => {
     // Animate the s5-image back to its original position
     gsap.to(".s5-image", {
-      y: "0%", // Move to 0% on the Y axis
-      duration: 0.5,
+      y: "25%", // Move to 0% on the Y axis
+      duration: 3,
       ease: "power4.out"
     });
   },
   onLeaveBack: (self) => {
     // If scrolling back, move the s5-image up again
     if (self.progress === 0) {
-      gsap.to(".s5-image", { opacity: 0, ease: "power4.out" });
+      gsap.to(".s5-image", { opacity: 100, ease: "power4.out" });
     }
   },
 });
