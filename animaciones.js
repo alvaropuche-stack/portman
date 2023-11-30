@@ -54,7 +54,7 @@ ScrollTrigger.create({
   trigger: ".portman-section-3",
   start: "center 80%", // Ajustar a un valor que capture el momento justo al entrar en la sección
   end: "center center",
-  markers: true, // Establecer en true para depuración y ajustar la animación
+  markers: false, // Establecer en true para depuración y ajustar la animación
   containerAnimation: tlMain,
   onEnter: () => {
     gsap.to(".s3-image", {
@@ -72,7 +72,7 @@ ScrollTrigger.create({
   trigger: ".portman-section-3",
   start: "center 80%", // Ajustar de la misma manera que la imagen para que la animación sea coherente
   end: "buttom center",
-  markers: true, // Establecer en true para depuración y ajustar la animación
+  markers: false, // Establecer en true para depuración y ajustar la animación
   containerAnimation: tlMain,
   onEnter: () => {
     gsap.to(".s3-text-wrap", {
